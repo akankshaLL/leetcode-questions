@@ -1,0 +1,47 @@
+#include <vector>
+#include <queue>
+
+class Solution {
+public:
+    double maxAverageRatio(std::vector<std::vector<int>>& classes, int extraStudents) {
+        
+
+        
+        auto comparator = [](const std::pair<double, int>& a, const std::pair<double, int>& b) {
+            return a.first < b.first;
+        };
+        
+        std::priority_queue<std::pair<double, int>, std::vector<std::pair<double, int>>, decltype(comparator)> pq(comparator);
+        
+        for (int i = 0; i < classes.size(); ++i) {
+            int pass = classes[i][0];
+            int total = classes[i][1];
+            double current_ratio = static_cast<double>(pass) / total;
+            double next_ratio = static_cast<double>(pass + 1) / (total + 1);
+            double gain = next_ratio - current_ratio;
+            pq.push({gain, i});
+        }
+        
+        for (int i = 0; i < extraStudents; ++i) {
+            std::pair<double, int> top = pq.top();
+            pq.pop();
+            int class_index = top.second;
+            classes[class_index][0]++;
+            classes[class_index][1]++;
+            
+            int pass = classes[class_index][0];
+            int total = classes[class_index][1];
+            double current_ratio = static_cast<double>(pass) / total;
+            double next_ratio = static_cast<double>(pass + 1) / (total + 1);
+            double new_gain = next_ratio - current_ratio;
+            pq.push({new_gain, class_index});
+        }
+        
+        double total_ratio = 0.0;
+        for (const auto& cls : classes) {
+            total_ratio += static_cast<double>(cls[0]) / cls[1];
+        }
+        
+        return total_ratio / classes.size();
+    }
+};
