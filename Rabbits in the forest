@@ -1,0 +1,22 @@
+#include <vector>
+#include <unordered_map>
+#include <cmath>
+
+class Solution {
+public:
+    int numRabbits(std::vector<int>& answers) {
+        std::unordered_map<int, int> counts;
+        for (int answer : answers) {
+            counts[answer]++;
+        }
+        
+        int totalRabbits = 0;
+        for (auto const& [answer, count] : counts) {
+            int groupSize = answer + 1;
+            int numGroups = (count + groupSize - 1) / groupSize; // This is a trick for ceiling division
+            totalRabbits += numGroups * groupSize;
+        }
+        
+        return totalRabbits;
+    }
+};
