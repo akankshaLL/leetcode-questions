@@ -1,0 +1,66 @@
+#include <vector>
+#include <map>
+
+class Solution {
+public:
+    int idealArrays(int n, int maxValue) {
+        long long MOD = 1e9 + 7;
+        
+        // Pre-compute factorials and inverse factorials for combinations
+        std::vector<long long> fact(n + 15), invFact(n + 15);
+        fact[0] = 1;
+        for (int i = 1; i < n + 15; ++i) {
+            fact[i] = (fact[i - 1] * i) % MOD;
+        }
+        
+        invFact[n + 14] = power(fact[n + 14], MOD - 2, MOD);
+        for (int i = n + 13; i >= 0; --i) {
+            invFact[i] = (invFact[i + 1] * (i + 1)) % MOD;
+        }
+
+        auto nCr_mod_p = [&](int n_comb, int r_comb) -> long long {
+            if (r_comb < 0 || r_comb > n_comb) return 0;
+            return (((fact[n_comb] * invFact[r_comb]) % MOD) * invFact[n_comb - r_comb]) % MOD;
+        };
+
+        long long totalCount = 0;
+        
+        // Iterate through all possible first elements
+        for (int first_val = 1; first_val <= maxValue; ++first_val) {
+            std::map<int, int> prime_counts;
+            int temp = first_val;
+            
+            // Prime factorization
+            for (int i = 2; i * i <= temp; ++i) {
+                while (temp % i == 0) {
+                    prime_counts[i]++;
+                    temp /= i;
+                }
+            }
+            if (temp > 1) {
+                prime_counts[temp]++;
+            }
+
+            long long ways_for_val = 1;
+            for (auto const& [prime, count] : prime_counts) {
+                ways_for_val = (ways_for_val * nCr_mod_p(count + n - 1, n - 1)) % MOD;
+            }
+
+            totalCount = (totalCount + ways_for_val) % MOD;
+        }
+
+        return totalCount;
+    }
+
+private:
+    long long power(long long base, long long exp, long long mod) {
+        long long res = 1;
+        base %= mod;
+        while (exp > 0) {
+            if (exp % 2 == 1) res = (res * base) % mod;
+            base = (base * base) % mod;
+            exp /= 2;
+        }
+        return res;
+    }
+};
