@@ -1,0 +1,74 @@
+#include <stdbool.h>
+#include <string.h>
+
+
+#define MAX_USERS 501
+#define MAX_LANGUAGES 501
+
+bool user_knows_language[MAX_USERS][MAX_LANGUAGES];
+
+int minimumTeachings(int n, int** languages, int languagesSize, int* languagesColSize, int** friendships, int friendshipsSize, int* friendshipsColSize) {
+    
+    memset(user_knows_language, false, sizeof(user_knows_language));
+    
+    for (int i = 0; i < languagesSize; ++i) {
+        for (int j = 0; j < languagesColSize[i]; ++j) {
+            user_knows_language[i + 1][languages[i][j]] = true;
+        }
+    }
+
+    
+    bool need_to_teach[MAX_USERS] = {false};
+    int non_communicating_users_count = 0;
+
+    for (int i = 0; i < friendshipsSize; ++i) {
+        int user1 = friendships[i][0];
+        int user2 = friendships[i][1];
+        
+        bool can_communicate = false;
+        for (int lang = 1; lang <= n; ++lang) {
+            if (user_knows_language[user1][lang] && user_knows_language[user2][lang]) {
+                can_communicate = true;
+                break;
+            }
+        }
+        
+        if (!can_communicate) {
+            if (!need_to_teach[user1]) {
+                need_to_teach[user1] = true;
+                non_communicating_users_count++;
+            }
+            if (!need_to_teach[user2]) {
+                need_to_teach[user2] = true;
+                non_communicating_users_count++;
+            }
+        }
+    }
+
+    if (non_communicating_users_count == 0) {
+        return 0;
+    }
+
+    
+    int lang_counts[MAX_LANGUAGES] = {0};
+    for (int i = 1; i < MAX_USERS; ++i) {
+        if (need_to_teach[i]) {
+            for (int lang = 1; lang <= n; ++lang) {
+                if (user_knows_language[i][lang]) {
+                    lang_counts[lang]++;
+                }
+            }
+        }
+    }
+
+
+    int max_known = 0;
+    for (int i = 1; i <= n; ++i) {
+        if (lang_counts[i] > max_known) {
+            max_known = lang_counts[i];
+        }
+    }
+
+    
+    return non_communicating_users_count - max_known;
+}
