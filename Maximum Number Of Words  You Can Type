@@ -1,0 +1,27 @@
+#include <stdbool.h>
+#include <string.h>
+
+int canBeTypedWords(char * text, char * brokenLetters){
+    bool broken[26] = {false};
+    for (int i = 0; brokenLetters[i] != '\0'; i++) {
+        broken[brokenLetters[i] - 'a'] = true;
+    }
+
+    int count = 0;
+    char *word = strtok(text, " ");
+    while (word != NULL) {
+        bool can_type = true;
+        for (int i = 0; word[i] != '\0'; i++) {
+            if (broken[word[i] - 'a']) {
+                can_type = false;
+                break;
+            }
+        }
+        if (can_type) {
+            count++;
+        }
+        word = strtok(NULL, " ");
+    }
+    
+    return count;
+}
