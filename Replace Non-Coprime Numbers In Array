@@ -1,0 +1,34 @@
+class Solution {
+public:
+    int gcd(int a, int b) {
+        while (b) {
+            a %= b;
+            swap(a, b);
+        }
+        return a;
+    }
+
+    vector<int> replaceNonCoprimes(vector<int>& nums) {
+        vector<long long> result;
+
+        for (int num : nums) {
+            long long current = num;
+            while (!result.empty()) {
+                long long last = result.back();
+                if (gcd(last, current) == 1) {
+                    break;
+                }
+                result.pop_back();
+                current = (last * current) / gcd(last, current);
+            }
+            result.push_back(current);
+        }
+
+        vector<int> final_result;
+        for (long long val : result) {
+            final_result.push_back(static_cast<int>(val));
+        }
+
+        return final_result;
+    }
+};
