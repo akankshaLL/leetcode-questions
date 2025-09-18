@@ -1,0 +1,64 @@
+#include <iostream>
+#include <vector>
+#include <queue>
+#include <unordered_map>
+
+class TaskManager {
+private:
+    struct TaskComparator {
+        bool operator()(const std::pair<int, int>& a, const std::pair<int, int>& b) {
+            if (a.first != b.first) {
+                return a.first < b.first; 
+            }
+            return a.second < b.second; 
+        }
+    };
+
+    
+    std::priority_queue<std::pair<int, int>, std::vector<std::pair<int, int>>, TaskComparator> pq;
+
+    
+    std::unordered_map<int, std::pair<int, int>> taskMap;
+
+public:
+    TaskManager(std::vector<std::vector<int>>& tasks) {
+        for (const auto& task : tasks) {
+            add(task[0], task[1], task[2]);
+        }
+    }
+
+    void add(int userId, int taskId, int priority) {
+        taskMap[taskId] = {userId, priority};
+        pq.push({priority, taskId});
+    }
+
+    void edit(int taskId, int newPriority) {
+        
+        taskMap[taskId].second = newPriority;
+        
+        pq.push({newPriority, taskId});
+    }
+
+    void rmv(int taskId) {
+        
+        taskMap.erase(taskId);
+    }
+
+    int execTop() {
+        while (!pq.empty()) {
+            auto top = pq.top();
+            pq.pop();
+            int currentPriority = top.first;
+            int currentTaskId = top.second;
+
+            
+            if (taskMap.count(currentTaskId) && taskMap[currentTaskId].second == currentPriority) {
+                int userId = taskMap[currentTaskId].first;
+                
+                taskMap.erase(currentTaskId);
+                return userId;
+            }
+        }
+        return -1;
+    }
+};
