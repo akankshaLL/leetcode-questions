@@ -1,0 +1,40 @@
+#include <stdio.h>
+
+int max(int a, int b) {
+    return a > b ? a : b;
+}
+
+int min(int a, int b) {
+    return a < b ? a : b;
+}
+
+int maxArea(int* height, int heightSize) {
+   
+    int left = 0;
+    int right = heightSize - 1;
+    
+    int maxArea = 0;
+    
+    while (left < right) {
+
+        int width = right - left;
+        
+
+        int currentHeight = min(height[left], height[right]);
+        
+        
+        int currentArea = currentHeight * width;
+        
+        
+        maxArea = max(maxArea, currentArea);
+        
+        
+        if (height[left] < height[right]) {
+            left++;
+        } else {
+            right--;
+        }
+    }
+    
+    return maxArea;
+}
