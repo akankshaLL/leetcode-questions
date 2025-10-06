@@ -1,0 +1,84 @@
+import java.util.ArrayList;
+import java.util.List;
+
+class Solution {
+    private int m;
+    private int n;
+    private int[][] heights;
+    // Directions: right, down, left, up
+    private final int[][] DIRS = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
+
+    /**
+     * Finds the list of coordinates from which rain water can flow to both the Pacific and Atlantic oceans.
+     */
+    public List<List<Integer>> pacificAtlantic(int[][] heights) {
+        if (heights == null || heights.length == 0 || heights[0].length == 0) {
+            return new ArrayList<>();
+        }
+
+        this.heights = heights;
+        m = heights.length;
+        n = heights[0].length;
+
+        // Boolean arrays to track cells reachable from each ocean
+        boolean[][] pacific = new boolean[m][n];
+        boolean[][] atlantic = new boolean[m][n];
+
+        // 1. Start DFS from all border cells touching the oceans
+
+        // Top row (Pacific) and Bottom row (Atlantic)
+        for (int j = 0; j < n; j++) {
+            // Pacific: row 0
+            dfs(0, j, pacific, heights[0][j]);
+            // Atlantic: row m-1
+            dfs(m - 1, j, atlantic, heights[m - 1][j]);
+        }
+
+        // Left column (Pacific) and Right column (Atlantic)
+        for (int i = 0; i < m; i++) {
+            // Pacific: col 0
+            dfs(i, 0, pacific, heights[i][0]);
+            // Atlantic: col n-1
+            dfs(i, n - 1, atlantic, heights[i][n - 1]);
+        }
+
+        // 2. Collect the result: cells reachable by both
+        List<List<Integer>> result = new ArrayList<>();
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+                if (pacific[i][j] && atlantic[i][j]) {
+                    List<Integer> coordinate = new ArrayList<>();
+                    coordinate.add(i);
+                    coordinate.add(j);
+                    result.add(coordinate);
+                }
+            }
+        }
+
+        return result;
+    }
+
+    private void dfs(int r, int c, boolean[][] reachable, int prevHeight) {
+        // 1. Check bounds and visited status
+        if (r < 0 || r >= m || c < 0 || c >= n || reachable[r][c]) {
+            return;
+        }
+
+        // 2. Check for the "reverse flow" condition (moving uphill/laterally)
+        if (heights[r][c] < prevHeight) {
+            return;
+        }
+
+        // Mark current cell as reachable
+        reachable[r][c] = true;
+
+        // 3. Recurse to neighbors
+        for (int[] dir : DIRS) {
+            int nr = r + dir[0];
+            int nc = c + dir[1];
+            
+            // Pass the current cell's height as the 'previous' height for the next call
+            dfs(nr, nc, reachable, heights[r][c]);
+        }
+    }
+}
