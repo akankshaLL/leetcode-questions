@@ -1,0 +1,53 @@
+#include <stdlib.h>
+#include <stdio.h>
+
+
+struct ListNode* current_head;
+
+int getLength(struct ListNode* head) {
+    int length = 0;
+    struct ListNode* curr = head;
+    while (curr != NULL) {
+        length++;
+        curr = curr->next;
+    }
+    return length;
+}
+
+
+struct TreeNode* buildBST(int start, int end) {
+   
+    if (start > end) {
+        return NULL;
+    }
+
+    
+    int mid = start + (end - start) / 2;
+
+    
+    struct TreeNode* left_child = buildBST(start, mid - 1);
+    struct TreeNode* root = (struct TreeNode*)malloc(sizeof(struct TreeNode));
+    root->val = current_head->val;
+    root->left = left_child;
+
+    current_head = current_head->next;
+
+   
+    root->right = buildBST(mid + 1, end);
+
+    return root;
+}
+
+struct TreeNode* sortedListToBST(struct ListNode* head) {
+    if (head == NULL) {
+        return NULL;
+    }
+
+
+    current_head = head;
+
+   
+    int n = getLength(head);
+
+    return buildBST(0, n - 1);
+}
