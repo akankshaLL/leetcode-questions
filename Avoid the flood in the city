@@ -1,0 +1,98 @@
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+
+typedef struct {
+    int lakeId;
+    int dayIndex;
+} LakeInfo;
+
+int findLake(LakeInfo* map, int mapSize, int lakeId) {
+    for (int i = 0; i < mapSize; i++) {
+        if (map[i].lakeId == lakeId) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+int findNextSunnyDayIndex(int* sunnyDays, int sunnyCount, int targetDay) {
+   
+    for (int i = 0; i < sunnyCount; i++) {
+        if (sunnyDays[i] > targetDay) {
+            return i;
+        }
+    }
+    return -1; 
+}
+int* avoidFlood(int* rains, int rainsSize, int* returnSize) {
+    *returnSize = rainsSize;
+    int* ans = (int*)malloc(sizeof(int) * rainsSize);
+    if (!ans) return NULL; 
+
+    int MAX_LAKES = rainsSize; 
+    LakeInfo* lakeIdToFullDay = (LakeInfo*)calloc(MAX_LAKES, sizeof(LakeInfo));
+    int lakeMapCount = 0;
+    
+    int* sunnyDays = (int*)malloc(sizeof(int) * rainsSize);
+    int sunnyCount = 0;
+    // ---------------------------------------------
+
+    // Initialize ans
+    for (int i = 0; i < rainsSize; i++) {
+        ans[i] = -1;
+    }
+
+    for (int i = 0; i < rainsSize; i++) {
+        int lakeId = rains[i];
+
+        if (lakeId == 0) {
+          
+            if (sunnyCount < rainsSize) {
+                sunnyDays[sunnyCount++] = i;
+            }
+            ans[i] = 1;
+        } else {
+           
+            int mapIndex = findLake(lakeIdToFullDay, lakeMapCount, lakeId);
+
+            if (mapIndex != -1) {
+                
+                int lastFullDay = lakeIdToFullDay[mapIndex].dayIndex;
+                 
+                int sunnyIdxInArray = findNextSunnyDayIndex(sunnyDays, sunnyCount, lastFullDay);
+                
+                if (sunnyIdxInArray == -1) {
+                    free(ans);
+                    free(lakeIdToFullDay);
+                    free(sunnyDays);
+                    *returnSize = 0;
+                    return NULL;
+                }
+                
+                int dryDayIndex = sunnyDays[sunnyIdxInArray];
+                ans[dryDayIndex] = lakeId;
+
+                for (int j = sunnyIdxInArray; j < sunnyCount - 1; j++) {
+                    sunnyDays[j] = sunnyDays[j+1];
+                }
+                sunnyCount--;
+            } else {
+                if (lakeMapCount < MAX_LAKES) {
+                    lakeIdToFullDay[lakeMapCount].lakeId = lakeId;
+                    lakeIdToFullDay[lakeMapCount].dayIndex = i;
+                    lakeMapCount++;
+                }
+            }
+            
+            
+            if (mapIndex != -1) {
+                 lakeIdToFullDay[mapIndex].dayIndex = i;
+            }
+        }
+    }
+    free(lakeIdToFullDay);
+    free(sunnyDays);
+    
+    return ans;
+}
