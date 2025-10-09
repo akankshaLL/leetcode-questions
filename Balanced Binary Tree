@@ -1,0 +1,23 @@
+#include <stdbool.h> 
+#include <stdlib.h>  
+#include <math.h>    
+int max(int a, int b) {
+    return (a > b) ? a : b;
+}
+int checkHeightAndBalance(struct TreeNode* root) {
+    if (root == NULL) {
+        return 0;
+    }
+    int left_height = checkHeightAndBalance(root->left);
+    int right_height = checkHeightAndBalance(root->right);
+    if (left_height == -1 || right_height == -1) {
+        return -1; 
+    }
+    if (abs(left_height - right_height) > 1) {
+        return -1;
+    }
+    return 1 + max(left_height, right_height);
+}
+bool isBalanced(struct TreeNode* root) {
+    return checkHeightAndBalance(root) != -1;
+}
