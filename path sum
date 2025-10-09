@@ -1,0 +1,12 @@
+#include <stdbool.h>
+bool hasPathSum(struct TreeNode* root, int targetSum) {
+    if (root == NULL) {
+        return false;
+    }
+    int remainingSum = targetSum - root->val;
+    if (root->left == NULL && root->right == NULL) {
+        return remainingSum == 0;
+    }
+    return hasPathSum(root->left, remainingSum) || 
+           hasPathSum(root->right, remainingSum);
+}
