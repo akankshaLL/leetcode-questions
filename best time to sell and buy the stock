@@ -1,0 +1,77 @@
+#include <stdio.h>
+#include <limits.h> // For INT_MAX
+
+// Simple helper function to get the maximum of two integers
+int max(int a, int b) {
+    return a > b ? a : b;
+}
+
+// Simple helper function to get the minimum of two integers
+int min(int a, int b) {
+    return a < b ? a : b;
+}
+
+/**
+ * @brief Calculates the maximum profit from a single stock transaction.
+ *
+ * @param prices An array of stock prices.
+ * @param pricesSize The number of elements in the prices array.
+ * @return The maximum profit achievable, or 0 if no profit is possible.
+ *
+ * Time Complexity: O(n)
+ * Space Complexity: O(1)
+ */
+int maxProfit(int* prices, int pricesSize) {
+    // If there are less than 2 prices, no transaction is possible.
+    if (pricesSize <= 1) {
+        return 0;
+    }
+    
+    // Initialize min_price to a very large number (maximum possible integer value)
+    // to ensure the first price in the array becomes the initial minimum.
+    int min_price = INT_MAX; 
+    
+    // Initialize max_profit to 0, as the maximum profit cannot be less than 0.
+    int max_profit = 0;
+    
+    // Iterate through the array once.
+    for (int i = 0; i < pricesSize; i++) {
+        // 1. Update the minimum price seen so far.
+        // This price represents the best day to BUY the stock up to day 'i'.
+        min_price = min(min_price, prices[i]);
+        
+        // 2. Calculate the potential profit if we SELL on the current day 'i'.
+        // Profit = Current Price (Sell) - Minimum Price Seen (Buy)
+        int current_profit = prices[i] - min_price;
+        
+        // 3. Update the overall maximum profit found.
+        max_profit = max(max_profit, current_profit);
+    }
+    
+    return max_profit;
+}
+
+/*
+// LeetCode structure typically only requires the function:
+// (The helper functions are often defined inside the function body or omitted if
+// only a simple comparison is used, but are clearer as separate functions.)
+
+int maxProfit(int* prices, int pricesSize) {
+    if (pricesSize <= 1) return 0;
+    
+    int min_price = 20000; // A high enough value, or INT_MAX from limits.h
+    int max_profit = 0;
+    
+    for (int i = 0; i < pricesSize; i++) {
+        if (prices[i] < min_price) {
+            min_price = prices[i];
+        } else {
+            int current_profit = prices[i] - min_price;
+            if (current_profit > max_profit) {
+                max_profit = current_profit;
+            }
+        }
+    }
+    return max_profit;
+}
+*/
