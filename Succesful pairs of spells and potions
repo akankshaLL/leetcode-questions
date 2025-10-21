@@ -1,0 +1,25 @@
+#include <vector>
+#include <algorithm>
+#include <cmath>
+
+class Solution {
+public:
+    std::vector<int> successfulPairs(std::vector<int>& spells, std::vector<int>& potions, long long success) {
+        std::sort(potions.begin(), potions.end());
+        
+        int n = spells.size();
+        int m = potions.size();
+        std::vector<int> result(n);
+        
+        for (int i = 0; i < n; ++i) {
+            long long current_spell = spells[i];
+            long long required_potion = (success + current_spell - 1) / current_spell;
+            auto it = std::lower_bound(potions.begin(), potions.end(), required_potion);
+            int count = std::distance(it, potions.end());
+            
+            result[i] = count;
+        }
+        
+        return result;
+    }
+};
