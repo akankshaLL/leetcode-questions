@@ -1,0 +1,24 @@
+#include <string.h>
+#include <stdlib.h>
+long long numberOfBeams(char** bank, int bankSize) {
+    long long total_beams = 0;
+    long long prev_device_count = 0;
+
+    for (int i = 0; i < bankSize; i++) {
+        char* current_row = bank[i];
+        long long current_device_count = 0;
+        for (int j = 0; current_row[j] != '\0'; j++) {
+            if (current_row[j] == '1') {
+                current_device_count++;
+            }
+        }
+        if (current_device_count > 0) {
+            if (prev_device_count > 0) {
+                total_beams += prev_device_count * current_device_count;
+            }
+            prev_device_count = current_device_count;
+        }
+    }
+
+    return total_beams;
+}
