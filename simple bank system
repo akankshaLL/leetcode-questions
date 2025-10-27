@@ -1,0 +1,67 @@
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
+
+typedef long long balance_t;
+
+typedef struct {
+    balance_t* balances; 
+    int num_accounts;   
+} Bank;
+bool isValid(Bank* obj, int account) {
+    return account >= 1 && account <= obj->num_accounts;
+}
+Bank* bankCreate(balance_t* balance, int balanceSize) {
+    Bank* obj = (Bank*)malloc(sizeof(Bank));
+    if (obj == NULL) return NULL;
+
+    obj->num_accounts = balanceSize;
+    obj->balances = (balance_t*)malloc(balanceSize * sizeof(balance_t));
+    if (obj->balances == NULL) {
+        free(obj);
+        return NULL;
+    }
+    memcpy(obj->balances, balance, balanceSize * sizeof(balance_t));
+
+    return obj;
+}
+bool bankTransfer(Bank* obj, int account1, int account2, balance_t money) {
+    if (!isValid(obj, account1) || !isValid(obj, account2)) {
+        return false;
+    }
+    if (obj->balances[account1 - 1] < money) {
+        return false;
+    }
+    obj->balances[account1 - 1] -= money;
+    obj->balances[account2 - 1] += money;
+    
+    return true;
+}
+bool bankDeposit(Bank* obj, int account, balance_t money) {
+    if (!isValid(obj, account)) {
+        return false;
+    }
+    obj->balances[account - 1] += money;
+    
+    return true;
+}
+bool bankWithdraw(Bank* obj, int account, balance_t money) {
+    if (!isValid(obj, account)) {
+        return false;
+    }
+    if (obj->balances[account - 1] < money) {
+        return false;
+    }
+    obj->balances[account - 1] -= money;
+    
+    return true;
+}
+void bankFree(Bank* obj) {
+    if (obj != NULL) {
+        if (obj->balances != NULL) {
+            free(obj->balances);
+        }
+        free(obj);
+    }
+}
+
