@@ -1,0 +1,77 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
+char * fractionToDecimal(int numerator, int denominator) {
+    if (numerator == 0) {
+        return strdup("0");
+    }
+    long long n = (long long)numerator;
+    long long d = (long long)denominator;
+    int sign = 1;
+    if ((n < 0) ^ (d < 0)) {
+        sign = -1;
+    }
+    long long abs_n = llabs(n);
+    long long abs_d = llabs(d);
+    char *result = (char *)malloc(10050 * sizeof(char));
+    if (result == NULL) return strdup(""); 
+    int current_index = 0;
+
+    if (sign == -1) {
+        result[current_index++] = '-';
+    }
+    long long integer_part = abs_n / abs_d;
+    long long remainder = abs_n % abs_d;
+
+    char int_str[20]; 
+    sprintf(int_str, "%lld", integer_part);
+    strcpy(&result[current_index], int_str);
+    current_index += strlen(int_str);
+    if (remainder == 0) {
+        result[current_index] = '\0';
+        return result;
+    }
+    result[current_index++] = '.';
+    
+    #define MAX_REMAINDERS 10000 
+    long long r_history[MAX_REMAINDERS];
+    int p_history[MAX_REMAINDERS];      
+    int history_count = 0;
+
+    while (remainder != 0) {
+        int repeating_index = -1;
+        for (int i = 0; i < history_count; i++) {
+            if (r_history[i] == remainder) {
+                repeating_index = p_history[i];
+                break;
+            }
+        }
+
+        if (repeating_index != -1) {
+            memmove(&result[current_index + 1], &result[current_index], 1); 
+            result[current_index + 1] = '\0';
+            result[current_index] = ')';
+            result[current_index] = '\0'; 
+            int len_block = current_index - repeating_index;
+            memmove(&result[repeating_index + 1], &result[repeating_index], len_block);
+            result[repeating_index] = '(';
+            result[current_index + 1] = ')'; 
+            result[current_index + 2] = '\0';
+            
+            return result;
+        }
+        if (history_count < MAX_REMAINDERS) {
+            r_history[history_count] = remainder;
+            p_history[history_count] = current_index;
+            history_count++;
+        }
+        remainder *= 10;
+        long long digit = remainder / abs_d;
+        remainder %= abs_d;
+        result[current_index++] = (char)(digit + '0');
+    }
+    result[current_index] = '\0';
+    return result;
+}
+
