@@ -1,0 +1,22 @@
+import java.util.Arrays;
+
+class Solution {
+    public int[] getSneakyNumbers(int[] nums) {
+        final int MAX_VAL = 100; 
+        int[] count = new int[MAX_VAL + 1];
+        int[] result = new int[2];
+        int resultIndex = 0;
+        for (int num : nums) {
+            count[num]++;
+            if (count[num] == 2) {
+                result[resultIndex] = num;
+                resultIndex++;
+                if (resultIndex == 2) {
+                    break;
+                }
+            }
+        }
+        
+        return result;
+    }
+}
