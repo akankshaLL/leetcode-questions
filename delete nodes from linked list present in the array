@@ -1,0 +1,29 @@
+#define MAX_VAL 100001 
+
+struct ListNode* modifiedList(int* nums, int numsSize, struct ListNode* head) {
+    int delete_set[MAX_VAL] = {0};
+    for (int i = 0; i < numsSize; i++) {
+        if (nums[i] < MAX_VAL) {
+            delete_set[nums[i]] = 1;
+        }
+    }
+    struct ListNode dummy;
+    dummy.next = head;
+
+    struct ListNode *prev = &dummy;
+    struct ListNode *current = head;
+    while (current != NULL) {
+        if (delete_set[current->val] == 1) {
+            prev->next = current->next;
+            struct ListNode *to_delete = current;
+            current = current->next;
+            free(to_delete);
+
+        } else {
+            prev = current;
+            current = current->next;
+        }
+    }
+    return dummy.next;
+}
+
