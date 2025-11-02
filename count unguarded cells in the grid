@@ -1,0 +1,54 @@
+#include <stdlib.h>
+#include <string.h>
+int countUnguarded(int m, int n, int** guards, int guardsSize, int* guardsColSize, int** walls, int wallsSize, int* wallsColSize) {
+    int grid[m][n];
+    bool guarded[m][n];
+    for (int i = 0; i < m; i++) {
+        for (int j = 0; j < n; j++) {
+            grid[i][j] = 0;
+            guarded[i][j] = false;
+        }
+    }
+    for (int i = 0; i < wallsSize; i++) {
+        int r = walls[i][0];
+        int c = walls[i][1];
+        grid[r][c] = 1; 
+    }
+    for (int i = 0; i < guardsSize; i++) {
+        int r = guards[i][0];
+        int c = guards[i][1];
+        grid[r][c] = 2; 
+        guarded[r][c] = true; 
+    }
+    int dr[] = {-1, 0, 1, 0}; 
+    int dc[] = {0, 1, 0, -1}; 
+    for (int i = 0; i < guardsSize; i++) {
+        int startR = guards[i][0];
+        int startC = guards[i][1];
+        for (int k = 0; k < 4; k++) {
+            int r = startR;
+            int c = startC;
+            while (true) {
+                r += dr[k];
+                c += dc[k];
+                if (r < 0 || r >= m || c < 0 || c >= n) {
+                    break; 
+                }
+                if (grid[r][c] == 1 || grid[r][c] == 2) {
+                    break;
+                }
+                guarded[r][c] = true;
+            }
+        }
+    }
+    int unguardedCount = 0;
+    for (int i = 0; i < m; i++) {
+        for (int j = 0; j < n; j++) {
+            if (grid[i][j] == 0 && guarded[i][j] == false) {
+                unguardedCount++;
+            }
+        }
+    }
+
+    return unguardedCount;
+}
