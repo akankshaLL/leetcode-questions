@@ -1,0 +1,30 @@
+#include <limits.h>
+int max(int a, int b) {
+    return (a > b) ? a : b;
+}
+int min(int a, int b) {
+    return (a < b) ? a : b;
+}
+
+int minCost(char * colors, int* neededTime, int neededTimeSize) {
+    if (neededTimeSize <= 1) {
+        return 0; 
+    }
+
+    long long total_minimum_time = 0; 
+    int i = 1;
+    int j = 0; 
+    while (i < neededTimeSize) {
+        if (colors[i] == colors[j]) {
+            total_minimum_time += min(neededTime[i], neededTime[j]);
+            if (neededTime[i] > neededTime[j]) {
+                j = i; 
+            }
+        } else {
+            j = i;
+        }
+        i++;
+    }
+
+    return (int)total_minimum_time;
+}
