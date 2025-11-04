@@ -1,0 +1,62 @@
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
+#define MAX_VAL 51
+typedef struct {
+    int num;
+    int freq;
+} ElementFreq;
+
+
+int compareElementFreq(const void *a, const void *b) {
+    ElementFreq *elemA = (ElementFreq *)a;
+    ElementFreq *elemB = (ElementFreq *)b;
+    if (elemA->freq != elemB->freq) {
+        return elemB->freq - elemA->freq;
+    }
+    return elemB->num - elemA->num;
+}
+int* findXSum(int* nums, int numsSize, int k, int x, int* returnSize) {
+    if (numsSize < k) {
+        *returnSize = 0;
+        return NULL;
+    }
+    *returnSize = numsSize - k + 1;
+    int* answer = (int*)malloc(*returnSize * sizeof(int));
+    if (answer == NULL) {
+        *returnSize = 0;
+        return NULL; 
+    }
+    int freq[MAX_VAL];
+    memset(freq, 0, sizeof(freq));
+    for (int i = 0; i < k; i++) {
+        freq[nums[i]]++;
+    }
+    for (int i = 0; i <= numsSize - k; i++) {
+        if (i > 0) {
+            freq[nums[i-1]]--;
+            freq[nums[i+k-1]]++;
+        }
+        ElementFreq uniqueElements[MAX_VAL];
+        int distinctCount = 0;
+        for (int val = 1; val < MAX_VAL; val++) {
+            if (freq[val] > 0) {
+                uniqueElements[distinctCount].num = val;
+                uniqueElements[distinctCount].freq = freq[val];
+                distinctCount++;
+            }
+        }
+        qsort(uniqueElements, distinctCount, sizeof(ElementFreq), compareElementFreq);
+        int elementsToKeep = (x < distinctCount) ? x : distinctCount;
+        long long currentXSum = 0;
+        
+        for (int j = 0; j < elementsToKeep; j++) {
+            int num = uniqueElements[j].num;
+            int count = uniqueElements[j].freq;
+            currentXSum += (long long)num * count;
+        }
+        answer[i] = (int)currentXSum;
+    }
+
+    return answer;
+}
