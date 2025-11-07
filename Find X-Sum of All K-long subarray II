@@ -1,0 +1,62 @@
+#include <vector>
+#include <unordered_map>
+#include <set>
+#include <numeric>
+
+using namespace std;
+
+class Solution {
+private:
+    using ElementState = pair<int, int>; 
+    long long calculateXSum(const set<ElementState>& top_x_tracker, int x) {
+        long long current_x_sum = 0;
+        int count = 0;
+        for (const auto& state : top_x_tracker) {
+            if (count >= x) break;
+            int freq = -state.first;
+            int val = -state.second;
+            current_x_sum += (long long)val * freq;
+            count++;
+        }
+        return current_x_sum;
+    }
+
+public:
+    vector<long long> findXSum(vector<int>& nums, int k, int x) {
+        int n = nums.size();
+        if (n < k) return {};
+        
+        vector<long long> answer;
+        unordered_map<int, int> counts;
+        set<ElementState> top_x_tracker; 
+        for (int i = 0; i < k; ++i) {
+            int val = nums[i];
+            if (counts.count(val)) {
+                top_x_tracker.erase({-counts[val], -val});
+            }
+            counts[val]++;
+            top_x_tracker.insert({-counts[val], -val});
+        }
+        answer.push_back(calculateXSum(top_x_tracker, x));
+        for (int i = k; i < n; ++i) {
+            int old_val = nums[i - k];
+            top_x_tracker.erase({-counts[old_val], -old_val});
+            counts[old_val]--;
+            if (counts[old_val] > 0) {
+                top_x_tracker.insert({-counts[old_val], -old_val});
+            } else {
+                counts.erase(old_val); 
+            }
+            int new_val = nums[i];
+            if (counts.count(new_val)) {
+                top_x_tracker.erase({-counts[new_val], -new_val});
+            }
+            
+            counts[new_val]++;
+            top_x_tracker.insert({-counts[new_val], -new_val});
+            answer.push_back(calculateXSum(top_x_tracker, x));
+        }
+        
+        return answer;
+    }
+};
