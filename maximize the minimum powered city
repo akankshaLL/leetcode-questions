@@ -1,0 +1,62 @@
+class Solution {
+private:
+    bool check(const std::vector<int>& stations, int r, long long additionalStations, long long minPower) {
+        const int n = stations.size();
+        long long current_base_power = 0;
+        for (int i = 0; i <= std::min(n - 1, r); ++i) {
+            current_base_power += stations[i];
+        }
+        std::vector<long long> diff(n + 1, 0); 
+        long long added_power_from_new_stations = 0;
+
+        for (int i = 0; i < n; ++i) {
+            added_power_from_new_stations += diff[i];
+            if (i > 0) {
+                if (i - r - 1 >= 0) {
+                    current_base_power -= stations[i - r - 1];
+                }
+                if (i + r < n) {
+                    current_base_power += stations[i + r];
+                }
+            }
+            long long total_power = current_base_power + added_power_from_new_stations;
+
+            if (total_power < minPower) {
+                long long requiredPower = minPower - total_power;
+
+                if (requiredPower > additionalStations) {
+                    return false;
+                }
+                additionalStations -= requiredPower;
+                added_power_from_new_stations += requiredPower;
+                int out_of_range_index = std::min(n, i + 2 * r + 1);
+                if (out_of_range_index < n + 1) {
+                    diff[out_of_range_index] -= requiredPower;
+                }
+            }
+        }
+        return true;
+    }
+
+public:
+    long long maxPower(std::vector<int>& stations, int r, int k) {
+        long long initial_sum = 0;
+        for (int station : stations) {
+            initial_sum += station;
+        }
+        long long left = 0;
+        long long right = initial_sum + k;
+        long long max_min_power = 0;
+        while (left <= right) {
+            long long mid = left + (right - left) / 2;
+            if (check(stations, r, k, mid)) {
+                max_min_power = mid;
+                left = mid + 1; 
+            } else {
+                right = mid - 1;
+            }
+        }
+
+        return max_min_power;
+    }
+};
