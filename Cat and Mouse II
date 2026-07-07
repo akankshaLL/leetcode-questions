@@ -1,0 +1,71 @@
+from functools import lru_cache
+from typing import List
+
+class Solution:
+    def canMouseWin(self, grid: List[str], catJump: int, mouseJump: int) -> bool:
+        rows, cols = len(grid), len(grid[0])
+        
+        m_start = c_start = food = None
+        for r in range(rows):
+            for c in range(cols):
+                if grid[r][c] == 'M':
+                    m_start = (r, c)
+                elif grid[r][c] == 'C':
+                    c_start = (r, c)
+                elif grid[r][c] == 'F':
+                    food = (r, c)
+                    
+       
+        directions = [(0, 1), (0, -1), (1, 0), (-1, 0)]
+        
+        MAX_MOVES = 100 
+        
+        @lru_cache(None)
+        def dfs(turn: int, m_pos: tuple, c_pos: tuple) -> bool:
+           
+            if turn >= MAX_MOVES:
+                return False
+           
+            if m_pos == food:
+                return True   
+            if c_pos == food or c_pos == m_pos:
+                return False  
+                
+            is_mouse_turn = (turn % 2 == 0)
+            curr_pos = m_pos if is_mouse_turn else c_pos
+            max_jump = mouseJump if is_mouse_turn else catJump
+            
+            if is_mouse_turn:
+                if dfs(turn + 1, m_pos, c_pos):
+                    return True
+                    
+             
+                for dr, dc in directions:
+                    for jump in range(1, max_jump + 1):
+                        nr, nc = curr_pos[0] + dr * jump, curr_pos[1] + dc * jump
+                      
+                        if not (0 <= nr < rows and 0 <= nc < cols) or grid[nr][nc] == '#':
+                            break 
+                        
+                        if dfs(turn + 1, (nr, nc), c_pos):
+                            return True
+                return False
+                
+            else:
+                if not dfs(turn + 1, m_pos, c_pos):
+                    return False
+                    
+              
+                for dr, dc in directions:
+                    for jump in range(1, max_jump + 1):
+                        nr, nc = curr_pos[0] + dr * jump, curr_pos[1] + dc * jump
+                        
+                        if not (0 <= nr < rows and 0 <= nc < cols) or grid[nr][nc] == '#':
+                            break 
+                        
+                        if not dfs(turn + 1, m_pos, (nr, nc)):
+                            return False
+                return True
+
+        return dfs(0, m_start, c_start)
+        
