@@ -1,0 +1,57 @@
+from collections import deque
+from functools import lru_cache
+from typing import List
+
+class Solution:
+    def maxMoves(self, kx: int, ky: int, positions: List[List[int]]) -> int:
+        n = len(positions)
+       
+        all_pts = positions + [[kx, ky]]
+        
+        
+        def bfs(sx, sy):
+            dist = [[-1] * 50 for _ in range(50)]
+            dist[sx][sy] = 0
+            q = deque([(sx, sy)])
+            
+            moves = [
+                (2, 1), (2, -1), (-2, 1), (-2, -1),
+                (1, 2), (1, -2), (-1, 2), (-1, -2)
+            ]
+            
+            while q:
+                r, c = q.popleft()
+                for dr, dc in moves:
+                    nr, nc = r + dr, c + dc
+                    if 0 <= nr < 50 and 0 <= nc < 50 and dist[nr][nc] == -1:
+                        dist[nr][nc] = dist[r][c] + 1
+                        q.append((nr, nc))
+            return dist
+
+        dist_matrix = [[0] * (n + 1) for _ in range(n + 1)]
+        for i in range(n + 1):
+            grid_dist = bfs(all_pts[i][0], all_pts[i][1])
+            for j in range(n + 1):
+                dist_matrix[i][j] = grid_dist[all_pts[j][0]][all_pts[j][1]]
+       
+        @lru_cache(None)
+        def play(curr_idx: int, mask: int, is_alice: bool) -> int:
+            if mask == 0:
+                return 0
+            
+            if is_alice:
+                res = float('-inf')
+                for i in range(n):
+                    if mask & (1 << i):
+                    
+                        res = max(res, dist_matrix[curr_idx][i] + play(i, mask ^ (1 << i), False))
+                return res
+            else:
+                res = float('inf')
+                for i in range(n):
+                    if mask & (1 << i):
+                      
+                        res = min(res, dist_matrix[curr_idx][i] + play(i, mask ^ (1 << i), True))
+                return res
+        initial_mask = (1 << n) - 1
+        return play(n, initial_mask, True)
