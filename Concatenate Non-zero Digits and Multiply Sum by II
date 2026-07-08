@@ -1,0 +1,37 @@
+class Solution:
+    def sumAndMultiply(self, s: str, queries: list[list[int]]) -> list[int]:
+        MOD = 10**9 + 7
+        n = len(s)
+       
+        prefix_sum = [0] * (n + 1)
+        prefix_nz_cnt = [0] * (n + 1)
+        prefix_val = [0] * (n + 1)
+        
+        for i, ch in enumerate(s):
+            digit = int(ch)
+            prefix_sum[i + 1] = prefix_sum[i] + digit
+            
+            if digit != 0:
+                prefix_nz_cnt[i + 1] = prefix_nz_cnt[i] + 1
+                prefix_val[i + 1] = (prefix_val[i] * 10 + digit) % MOD
+            else:
+                prefix_nz_cnt[i + 1] = prefix_nz_cnt[i]
+                prefix_val[i + 1] = prefix_val[i]
+        
+        pow10 = [1] * (n + 1)
+        for i in range(1, n + 1):
+            pow10[i] = (pow10[i - 1] * 10) % MOD
+            
+        ans = []
+        for l, r in queries:
+         
+            total_sum = prefix_sum[r + 1] - prefix_sum[l]
+            
+         
+            nz_in_range = prefix_nz_cnt[r + 1] - prefix_nz_cnt[l]
+            x = (prefix_val[r + 1] - prefix_val[l] * pow10[nz_in_range]) % MOD
+            
+        
+            ans.append((x * total_sum) % MOD)
+            
+        return ans
